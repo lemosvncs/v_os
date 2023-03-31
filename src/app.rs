@@ -1,21 +1,25 @@
+use egui::Vec2;
+use egui_extras::{RetainedImage, image::load_image_bytes};
+
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct TemplateApp {
-    // Example stuff:
-    label: String,
-
+    logo_size: Vec2,
     // this how you opt-out of serialization of a member
     #[serde(skip)]
-    value: f32,
+    vos: RetainedImage, 
 }
 
 impl Default for TemplateApp {
     fn default() -> Self {
         Self {
+            logo_size: Vec2::new(50.0, 50.0),
+            vos: RetainedImage::from_image_bytes(
+                "vos.png", 
+                include_bytes!("../assets/vos.png"),
+            ).unwrap(),
             // Example stuff:
-            label: "Hello World!".to_owned(),
-            value: 2.7,
         }
     }
 }
@@ -45,7 +49,7 @@ impl eframe::App for TemplateApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let Self { label, value } = self;
+        let Self { logo_size,  vos: _ } = self;
 
         // Examples of how to create different panels and windows.
         // Pick whichever suits you.
@@ -64,44 +68,67 @@ impl eframe::App for TemplateApp {
             });
         });
 
-        egui::SidePanel::left("side_panel").show(ctx, |ui| {
-            ui.heading("Side Panel");
+        // egui::SidePanel::left("side_panel").show(ctx, |ui| {
+        //     ui.heading("Side Panel");
 
-            ui.horizontal(|ui| {
-                ui.label("Write something: ");
-                ui.text_edit_singleline(label);
-            });
+        //     ui.horizontal(|ui| {
+        //         ui.label("Write something: ");
+        //         ui.text_edit_singleline(label);
+        //     });
 
-            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
-            if ui.button("Increment").clicked() {
-                *value += 1.0;
-            }
+        //     ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
+        //     if ui.button("Increment").clicked() {
+        //         *value += 1.0;
+        //     }
 
-            ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
-                ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x = 0.0;
-                    ui.label("powered by ");
-                    ui.hyperlink_to("egui", "https://github.com/emilk/egui");
-                    ui.label(" and ");
-                    ui.hyperlink_to(
-                        "eframe",
-                        "https://github.com/emilk/egui/tree/master/crates/eframe",
-                    );
-                    ui.label(".");
-                });
-            });
-        });
+        //     ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
+        //         ui.horizontal(|ui| {
+        //             ui.spacing_mut().item_spacing.x = 0.0;
+        //             ui.label("powered by ");
+        //             ui.hyperlink_to("egui", "https://github.com/emilk/egui");
+        //             ui.label(" and ");
+        //             ui.hyperlink_to(
+        //                 "eframe",
+        //                 "https://github.com/emilk/egui/tree/master/crates/eframe",
+        //             );
+        //             ui.label(".");
+        //         });
+        //     });
+        // });
+
 
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
+            egui::Grid::new("desktop").show(ui, |ui| {
+                
+                for i in 0..2 {
+                    ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                }
+                ui.end_row();                
+                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                ui.end_row();                
+                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                ui.end_row();                
+                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                ui.end_row();                
+                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                ui.end_row();                
+                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
 
-            ui.heading("eframe template");
-            ui.hyperlink("https://github.com/emilk/eframe_template");
-            ui.add(egui::github_link_file!(
-                "https://github.com/emilk/eframe_template/blob/master/",
-                "Source code."
-            ));
+
+            });
+            
+
             egui::warn_if_debug_build(ui);
+        });
+
+        egui::TopBottomPanel::bottom("menu_de_baixo").min_height(50.0).show(ctx, |ui| {
+            egui::Grid::new("menu_de_baixo_grid").show(ui, |ui| {
+                // ui.label("text");
+                if ui.add(egui::widgets::ImageButton::new(self.vos.texture_id(ctx), Vec2::new(50.0, 50.0))).clicked() {
+                    ui.label("...");
+                }
+            });
         });
 
         if false {
