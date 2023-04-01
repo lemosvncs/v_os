@@ -1,4 +1,5 @@
-use egui::Vec2;
+use eframe::glow::Context;
+use egui::{Vec2, InnerResponse, Window, Frame};
 use egui_extras::{RetainedImage, image::load_image_bytes};
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
@@ -8,8 +9,37 @@ pub struct TemplateApp {
     logo_size: Vec2,
     // this how you opt-out of serialization of a member
     #[serde(skip)]
-    vos: RetainedImage, 
+    vos: RetainedImage,
+    
+    #[serde(skip)]
+    bg: RetainedImage,
 }
+
+// #[derive(serde::Deserialize, serde::Serialize)]
+// #[serde(default)] // if we add new fields, give them default values when deserializing old state
+// struct Vapp {
+//     #[serde(skip)]
+//     icon: RetainedImage,
+    
+//     // #[serde(skip)]
+//     label: String,
+//     size: Vec2,
+
+// }
+
+//  Default desktop app
+// impl Default for Vapp {
+//     fn default() -> Self {
+//         Self {
+//             icon: RetainedImage::from_image_bytes(
+//                 "vos.png", 
+//                 include_bytes!("../assets/vos.png"),
+//             ).unwrap(),
+//             label: "App.vex".to_string(),
+//             size: Vec2::new(50.0, 50.0), 
+//         }
+//     }
+// }
 
 impl Default for TemplateApp {
     fn default() -> Self {
@@ -19,10 +49,29 @@ impl Default for TemplateApp {
                 "vos.png", 
                 include_bytes!("../assets/vos.png"),
             ).unwrap(),
-            // Example stuff:
+            bg: RetainedImage::from_image_bytes(
+                "bg.png", 
+                include_bytes!("../assets/bg.png"),
+            ).unwrap(),
         }
     }
 }
+
+// impl Vapp {
+//     fn desktopButton(self, ctx: &egui::Context) -> Option<InnerResponse<Option<Window>>> {
+//         let desktopButton = 
+//             egui::Window::new("desktopVapp").show(ctx, |ui| {
+//                 egui::widgets::ImageButton::new(self.icon.texture_id(&ctx), self.size);
+//                 ui.label(self.label);
+//             });
+//         return desktopButton;
+//     }
+
+//     fn label(mut self, label: String) -> Vapp{
+//         self.label = label;
+//         return self;
+//     }
+// }
 
 impl TemplateApp {
     /// Called once before the first frame.
@@ -49,7 +98,7 @@ impl eframe::App for TemplateApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let Self { logo_size,  vos: _ } = self;
+        let Self { logo_size: _,  vos: _, bg:_,  } = self;
 
         // Examples of how to create different panels and windows.
         // Pick whichever suits you.
@@ -68,52 +117,40 @@ impl eframe::App for TemplateApp {
             });
         });
 
-        // egui::SidePanel::left("side_panel").show(ctx, |ui| {
-        //     ui.heading("Side Panel");
+        // let size = eframe::Frame::info(&self).window_info.size;
+        // let size = eframe::Frame::info(&_frame);
+        println!("{:?}", &_frame.info());
+        // _frame.info();
 
-        //     ui.horizontal(|ui| {
-        //         ui.label("Write something: ");
-        //         ui.text_edit_singleline(label);
-        //     });
+        egui::CentralPanel::default()
+            // .frame(egui::Frame::)
+            .show(ctx, |ui| {
+            // ui.label(format!("{:?}", &_frame.info()));
+            // ui.label("A");
 
-        //     ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
-        //     if ui.button("Increment").clicked() {
-        //         *value += 1.0;
-        //     }
-
-        //     ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
-        //         ui.horizontal(|ui| {
-        //             ui.spacing_mut().item_spacing.x = 0.0;
-        //             ui.label("powered by ");
-        //             ui.hyperlink_to("egui", "https://github.com/emilk/egui");
-        //             ui.label(" and ");
-        //             ui.hyperlink_to(
-        //                 "eframe",
-        //                 "https://github.com/emilk/egui/tree/master/crates/eframe",
-        //             );
-        //             ui.label(".");
-        //         });
-        //     });
-        // });
-
-
-        egui::CentralPanel::default().show(ctx, |ui| {
-            // The central panel the region left after adding TopPanel's and SidePanel's
+            ui.add(egui::widgets::Image::new(self.bg.texture_id(ctx), ctx.available_rect().size()));
             egui::Grid::new("desktop").show(ui, |ui| {
-                
-                for i in 0..2 {
-                    ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
-                }
-                ui.end_row();                
-                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
-                ui.end_row();                
-                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
-                ui.end_row();                
-                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
-                ui.end_row();                
-                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
-                ui.end_row();                
-                ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                // let d_one = Vapp::default();
+
+                egui::Window::new("Contato.vex")
+                    .frame(Frame::none())
+                    .resizable(false)
+                    .collapsible(false)
+                    .title_bar(false)
+                    .show(ctx, |ui| {
+                    ui.add(egui::ImageButton::new(self.vos.texture_id(ctx), Vec2::new(50.0, 50.0)));
+                    ui.label("Contato.vex");
+                });
+                // ui.end_row();                
+                // ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                // ui.end_row();                
+                // ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                // ui.end_row();                
+                // ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                // ui.end_row();                
+                // ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
+                // ui.end_row();                
+                // ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
 
 
             });
