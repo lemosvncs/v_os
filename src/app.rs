@@ -13,6 +13,10 @@ pub struct TemplateApp {
     
     #[serde(skip)]
     bg: RetainedImage,
+
+    // #[serde(skip)]
+    contato_window: bool,
+
 }
 
 // #[derive(serde::Deserialize, serde::Serialize)]
@@ -53,6 +57,7 @@ impl Default for TemplateApp {
                 "bg.png", 
                 include_bytes!("../assets/bg.png"),
             ).unwrap(),
+            contato_window: false,
         }
     }
 }
@@ -98,7 +103,7 @@ impl eframe::App for TemplateApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let Self { logo_size: _,  vos: _, bg:_,  } = self;
+        let Self { logo_size: _,  vos: _, bg:_,  contato_window:_} = self;
 
         // Examples of how to create different panels and windows.
         // Pick whichever suits you.
@@ -138,9 +143,23 @@ impl eframe::App for TemplateApp {
                     .collapsible(false)
                     .title_bar(false)
                     .show(ctx, |ui| {
-                    ui.add(egui::ImageButton::new(self.vos.texture_id(ctx), Vec2::new(50.0, 50.0)));
+                    if ui.add(egui::ImageButton::new(self.vos.texture_id(ctx), Vec2::new(50.0, 50.0))).double_clicked() {
+                        self.contato_window = !self.contato_window;
+                    };
                     ui.label("Contato.vex");
                 });
+
+                if self.contato_window {
+                    egui::Window::new("Contato")
+                        .resizable(true)
+                        .auto_sized()
+                        .open(&mut self.contato_window)
+                        .show(ctx, |ui| {
+                            ui.label("e-mail: lemos.vncs@gmail.com");
+                            ui.label("zap: (21) 98065-3600")
+                        });
+                }
+                    
                 // ui.end_row();                
                 // ui.add(egui::Image::new(self.vos.texture_id(ctx), self.logo_size));
                 // ui.end_row();                
@@ -164,6 +183,12 @@ impl eframe::App for TemplateApp {
                 // ui.label("text");
                 if ui.add(egui::widgets::ImageButton::new(self.vos.texture_id(ctx), Vec2::new(50.0, 50.0))).clicked() {
                     ui.label("...");
+                }
+
+                if self.contato_window {
+                    if ui.add(egui::widgets::ImageButton::new(self.vos.texture_id(ctx), Vec2::new(50.0, 50.0))).clicked() {
+                        self.contato_window = !self.contato_window;
+                    }
                 }
             });
         });
